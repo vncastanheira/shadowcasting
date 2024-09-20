@@ -19,19 +19,23 @@ string[,] map = new[,] {
     { "#", "#", "#", ".", ".", "#" },
     { "#", ".", ".", ".", ".", "#" },
     { "#", ".", "#", "#", ".", "#" },
-    { "#", "@", ".", ".", ".", "#" },
+    { "#", ".", ".", ".", ".", "#" },
     { "#", ".", ".", "#", ".", "#" },
     { "#", ".", ".", ".", ".", "#" },
     { "#", "#", "#", "#", "#", "#" },
 };
 
+// const
 const string WALL = "#";
 const string FREE = ".";
 const string PLAYER = "@";
 
+// Player
+int playerY = 4;
+int playerX = 2;
+
+
 List<Tile> visitedTiles = new();
-
-
 
 void SetColor(string tile)
 {
@@ -44,29 +48,80 @@ void SetColor(string tile)
 while (true)
 {
     Update();
-    
-    var info = Console.ReadKey();
-    if (info.Key == ConsoleKey.Escape)
+    if (GetInput() == ConsoleKey.Escape)
         break;
 }
 
-void Update(){
+ConsoleKey GetInput()
+{
+    var info = Console.ReadKey();
+    switch (info.Key)
+    {
+        case ConsoleKey.RightArrow:
+            {
+                var nextX = playerX + 1;
+                if (InBounds(playerY, nextX) && IsFreeTile(playerY, nextX))
+                    playerX = nextX;
+            }
+            break;
+        case ConsoleKey.LeftArrow:
+            {
+                var nextX = playerX - 1;
+                if (InBounds(playerY, nextX) && IsFreeTile(playerY, nextX))
+                    playerX = nextX;
+            }
+            break;
+        case ConsoleKey.DownArrow:
+            {
+                var nextY = playerY + 1;
+                if (InBounds(nextY, playerX) && IsFreeTile(nextY, playerX))
+                    playerY = nextY;
+            }
+            break;
+        case ConsoleKey.UpArrow:
+            {
+                var nextY = playerY - 1;
+                if (InBounds(nextY, playerX) && IsFreeTile(nextY, playerX))
+                    playerY = nextY;
+            }
+            break;    
+        default:
+            break;
+    }
+    return info.Key;
+}
+
+void Update()
+{
     Console.Clear();
     Console.ForegroundColor = ConsoleColor.DarkGray;
-    for (int i = 0; i < map.GetLength(0); i++)
+    for (int y = 0; y < map.GetLength(0); y++)
     {
-        for (int j = 0; j < map.GetLength(1); j++)
+        for (int x = 0; x < map.GetLength(1); x++)
         {
-            var tile = map[i, j];
-            SetColor(tile);
-            Console.Write($"{tile} ");
+            if (playerX == x && playerY == y)
+            {
+                SetColor(PLAYER);
+                Console.Write($"@ ");
+            }
+            else
+            {
+                var tile = map[y, x];
+                SetColor(tile);
+                Console.Write($"{tile} ");
+            }
         }
         Console.Write("\n");
     }
 }
 
 // functions
-bool IsPointValid(int pX, int pY)
+bool InBounds(int pY, int pX)
 {
-    return pX >= 0 & pX < map.GetLength(0) & pY >= 0 & pY < map.GetLength(1);
+    return pX >= 0 & pX < map.GetLength(1) & pY >= 0 & pY < map.GetLength(0);
+}
+
+bool IsFreeTile(int pY, int pX)
+{
+    return map[pY, pX] == FREE;
 }
