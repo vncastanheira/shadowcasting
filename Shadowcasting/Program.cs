@@ -31,17 +31,7 @@ const string PLAYER = "@";
 
 List<Tile> visitedTiles = new();
 
-Console.ForegroundColor = ConsoleColor.DarkGray;
-for (int i = 0; i < map.GetLength(0); i++)
-{
-    for (int j = 0; j < map.GetLength(1); j++)
-    {
-        var tile = map[i, j];
-        SetColor(tile);
-        Console.Write($"{tile} ");
-    }
-    Console.Write("\n");
-}
+
 
 void SetColor(string tile)
 {
@@ -51,7 +41,29 @@ void SetColor(string tile)
         Console.ForegroundColor = ConsoleColor.DarkGray;
 }
 
-Console.ReadKey();
+while (true)
+{
+    Update();
+    
+    var info = Console.ReadKey();
+    if (info.Key == ConsoleKey.Escape)
+        break;
+}
+
+void Update(){
+    Console.Clear();
+    Console.ForegroundColor = ConsoleColor.DarkGray;
+    for (int i = 0; i < map.GetLength(0); i++)
+    {
+        for (int j = 0; j < map.GetLength(1); j++)
+        {
+            var tile = map[i, j];
+            SetColor(tile);
+            Console.Write($"{tile} ");
+        }
+        Console.Write("\n");
+    }
+}
 
 // functions
 bool IsPointValid(int pX, int pY)
