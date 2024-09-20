@@ -47,12 +47,13 @@ namespace map
         /// </summary>
         int[] VisibleOctants = { 1, 2, 3, 4, 5, 6, 7, 8 };
 
+        public bool ClearVisiblePoints = true;
+
         public FOVRecurse(string[,] pMap)
         {
             map = pMap;
-            VisiblePoints = new List<Point>();
+            VisiblePoints = new();
         }
-
 
         /// <summary>
         /// Move the player in the specified direction provided the cell is valid and empty
@@ -61,7 +62,7 @@ namespace map
         /// <param name="pY">Y Offset</param>
         public void movePlayer(int pX, int pY)
         {
-            if (Point_Valid(player.X + pX, player.Y + pY) 
+            if (Point_Valid(player.X + pX, player.Y + pY)
                 && GetPoint(player.X + pX, player.Y + pY) == FREE)
             {
                 player.Offset(pX, pY);
@@ -115,7 +116,9 @@ namespace map
         /// </summary>
         public void GetVisibleCells()
         {
-            VisiblePoints = new List<Point>();
+            if (ClearVisiblePoints)
+                VisiblePoints = new();
+
             for (int ctr = 0; ctr < VisibleOctants.Length; ctr++)
             {
                 ScanOctant(1, VisibleOctants[ctr], 1.0, 0.0);
