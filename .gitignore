@@ -3,3 +3,4 @@
 *.exe
 Shadowcasting/bin/
 Shadowcasting/obj/
+.vs

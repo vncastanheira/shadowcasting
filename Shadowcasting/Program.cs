@@ -12,6 +12,8 @@
 // https://web.archive.org/web/20200224054815/http://www.evilscience.co.uk/field-of-vision-using-recursive-shadow-casting-c-3-5-implementation/
 // https://github.com/AndyStobirski/RogueLike/blob/master/FOVRecurse.cs
 
+using map;
+
 string[,] map = new[,] {
     { "#", "#", "#", "#", "#", "#" },
     { "#", ".", ".", ".", ".", "#" },
@@ -25,25 +27,50 @@ string[,] map = new[,] {
     { "#", "#", "#", "#", "#", "#" },
 };
 
+var fovRecurse = new FOVRecurse(map);
+fovRecurse.Player = new System.Drawing.Point(2, 4);
+fovRecurse.VisualRange = 10;
+
+void Update()
+{
+    Console.Clear();
+    fovRecurse.GetVisibleCells();
+    for (int y = 0; y < map.GetLength(1); y++)
+    {
+        for (int x = 0; x < map.GetLength(0); x++)
+        {
+            if (fovRecurse.Player.X == x && fovRecurse.Player.Y == y)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write($"@ ");
+            }
+            else if (fovRecurse.VisiblePoints.Exists(p => p.X == x && p.Y == y))
+            {
+                var tile = fovRecurse.map[x, y];
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write($"{tile} ");
+            }
+            else
+            {
+                var tile = fovRecurse.map[x, y];
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.Write($"{tile} ");
+            }
+        }
+        Console.Write("\n");
+    }
+    Console.ResetColor();
+}
+
+
 // const
 const string WALL = "#";
 const string FREE = ".";
 const string PLAYER = "@";
 
-// Player
-int playerY = 4;
-int playerX = 2;
-
 
 List<Tile> visitedTiles = new();
 
-void SetColor(string tile)
-{
-    if (tile == PLAYER)
-        Console.ForegroundColor = ConsoleColor.Red;
-    else
-        Console.ForegroundColor = ConsoleColor.DarkGray;
-}
 
 while (true)
 {
@@ -59,69 +86,65 @@ ConsoleKey GetInput()
     {
         case ConsoleKey.RightArrow:
             {
-                var nextX = playerX + 1;
-                if (InBounds(playerY, nextX) && IsFreeTile(playerY, nextX))
-                    playerX = nextX;
+                fovRecurse.movePlayer(1, 0);
             }
             break;
         case ConsoleKey.LeftArrow:
             {
-                var nextX = playerX - 1;
-                if (InBounds(playerY, nextX) && IsFreeTile(playerY, nextX))
-                    playerX = nextX;
+                fovRecurse.movePlayer(-1, 0);
             }
             break;
         case ConsoleKey.DownArrow:
             {
-                var nextY = playerY + 1;
-                if (InBounds(nextY, playerX) && IsFreeTile(nextY, playerX))
-                    playerY = nextY;
+                fovRecurse.movePlayer(0, 1);
             }
             break;
         case ConsoleKey.UpArrow:
             {
-                var nextY = playerY - 1;
-                if (InBounds(nextY, playerX) && IsFreeTile(nextY, playerX))
-                    playerY = nextY;
+                fovRecurse.movePlayer(0, -1);
             }
-            break;    
+            break;
         default:
             break;
     }
     return info.Key;
 }
 
-void Update()
-{
-    Console.Clear();
-    Console.ForegroundColor = ConsoleColor.DarkGray;
-    for (int y = 0; y < map.GetLength(0); y++)
-    {
-        for (int x = 0; x < map.GetLength(1); x++)
-        {
-            if (playerX == x && playerY == y)
-            {
-                SetColor(PLAYER);
-                Console.Write($"@ ");
-            }
-            else
-            {
-                var tile = map[y, x];
-                SetColor(tile);
-                Console.Write($"{tile} ");
-            }
-        }
-        Console.Write("\n");
-    }
-}
 
-// functions
-bool InBounds(int pY, int pX)
-{
-    return pX >= 0 & pX < map.GetLength(1) & pY >= 0 & pY < map.GetLength(0);
-}
+//bool IsValid(int pY, int pX)
+//{
+//    return InBounds(pY, pX) && IsFreeTile(pY, pX);
+//}
 
-bool IsFreeTile(int pY, int pX)
-{
-    return map[pY, pX] == FREE;
-}
+//// functions
+//bool InBounds(int pY, int pX)
+//{
+//    return pX >= 0 & pX < map.GetLength(1) & pY >= 0 & pY < map.GetLength(0);
+//}
+
+//bool IsFreeTile(int pY, int pX)
+//{
+//    return map[pY, pX] == FREE;
+//}
+
+//double GetSlope(double pX1, double pY1, double pX2, double pY2, bool pInvert)
+//{
+//    return pInvert ? (pY1 - pY2) / (pX1 - pX2) : (pX1 - pX2) / (pY1 - pY2);
+//}
+
+//void CalculateFOV()
+//{
+//    var scanY = playerY - 1;
+//    var scanX = playerX;
+
+
+//    while (GetSlope(scanX, scanY, playerX, playerY, false) >= 0)
+//    {
+//        visitedTiles.Add(new Tile { x = scanX, y = scanY });
+
+//        if (map[scanY, scanX] == WALL)
+//            break;
+
+//        scanY -= 1;
+//    }
+//}
